@@ -64,7 +64,7 @@ def parse_uwb_log(line):
 
 def main():
     current_time_str = datetime.now(KST).strftime('%Y%m%d_%H%M%S_%f')[:-3]
-    SAVE_FILENAME = f"data/{NUNM}_uwb_{current_time_str}_KST.csv"
+    SAVE_FILENAME = f"data/{NUM}_uwb_{current_time_str}_KST.csv"
 
     count = 0 
     
