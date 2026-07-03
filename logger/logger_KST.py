@@ -1,11 +1,14 @@
 import serial
 import time
 import csv
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import os
    
 COM_PORT = 'COM4'       # 본인의 포트로 수정
 BAUD_RATE = 921600
+NUM = 1
+
+KST = timezone(timedelta(hours=9))
 
 if not os.path.exists('data'):
     os.makedirs('data')
@@ -60,8 +63,8 @@ def parse_uwb_log(line):
     return data
 
 def main():
-    current_time_str = datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S_%f')[:-3]
-    SAVE_FILENAME = f"data/uwb_{current_time_str}_UTC.csv"
+    current_time_str = datetime.now(KST).strftime('%Y%m%d_%H%M%S_%f')[:-3]
+    SAVE_FILENAME = f"data/{NUNM}_uwb_{current_time_str}_KST.csv"
 
     count = 0 
     
@@ -81,8 +84,7 @@ def main():
                         parsed_data = parse_uwb_log(raw_line)
                         
                         if '#Packet' in parsed_data:
-                            # 데이터 기록 시 글로벌 시간(UTC) 적용
-                            parsed_data['Timestamp'] = datetime.now(timezone.utc).strftime('%H:%M:%S.%f')[:-3]
+                            parsed_data['Timestamp'] = datetime.now(KST).strftime('%H:%M:%S.%f')[:-3]
                             writer.writerow(parsed_data)
                             
                             count += 1
