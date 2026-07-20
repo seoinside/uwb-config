@@ -4,7 +4,7 @@ import csv
 from datetime import datetime, timezone, timedelta
 import os
    
-COM_PORT = 'COM4'       # 본인의 포트로 수정
+COM_PORT = 'COM11'       # 본인의 포트로 수정
 BAUD_RATE = 921600
 NUM = 1
 
