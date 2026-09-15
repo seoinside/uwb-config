@@ -16,6 +16,7 @@ from pathlib import Path
 import re
 
 COM_PORT = "COM10"
+FILE_PREFIX = ""  # 예: "LOS_3m" -> LOS_3m_날짜_시간.csv
 BAUD_RATE = 921600
 KST = timezone(timedelta(hours=9))
 DEFAULT_OUTPUT = Path(__file__).resolve().parents[1] / "data"
@@ -129,7 +130,11 @@ def main():
     cli.add_argument("--port", default=COM_PORT)
     cli.add_argument("--baud", type=int, default=BAUD_RATE)
     cli.add_argument("--output", type=Path, default=DEFAULT_OUTPUT)
+    cli.add_argument("--prefix", default=FILE_PREFIX, help="Filename prefix, e.g. LOS_3m")
     args = cli.parse_args()
+    args.prefix = args.prefix.strip()
+    if re.search(r'[<>:"/\\|?*\x00-\x1f]', args.prefix):
+        cli.error("Filename prefix cannot contain <>:\"/\\|?* or control characters")
     try:
         import serial
     except ImportError:
@@ -142,7 +147,8 @@ def main():
 
     with port:
         args.output.mkdir(parents=True, exist_ok=True)
-        filename = args.output / datetime.now(KST).strftime("%Y%m%d_%H%M%S_%f.csv")
+        timestamp = datetime.now(KST).strftime("%Y%m%d_%H%M%S_%f")
+        filename = args.output / f"{args.prefix + '_' if args.prefix else ''}{timestamp}.csv"
         print(f"Connected: {args.port} @ {args.baud}\nSaving: {filename}\nStop: Ctrl+C")
         with filename.open("x", newline="", encoding="utf-8-sig") as output:
             parser = CIRParser(output)

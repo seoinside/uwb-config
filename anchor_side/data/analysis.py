@@ -1,4 +1,5 @@
 import argparse
+import re
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -18,10 +19,12 @@ base = Path(__file__).resolve().parent
 diag_columns = ["fp_index_raw", "peak_raw", "accum_count", "power_raw",
                 "f1_raw", "f2_raw", "f3_raw", "fp_index_chip", "peak_index_chip"]
 if args.folder is None:
-    sessions = sorted(p for p in base.iterdir()
-                      if (p.is_file() and p.suffix == ".csv" and p.name[:8].isdigit())
+    sessions = sorted((p for p in base.iterdir()
+                      if (p.is_file() and re.search(r"\d{8}_\d{6}_\d{6}\.csv$", p.name))
                       or (p.is_dir() and (p / "frames.csv").is_file()
-                          and (p / "samples.csv").is_file()))
+                          and (p / "samples.csv").is_file())),
+                      key=lambda p: (re.search(r"\d{8}_\d{6}_\d{6}$", p.stem).group()
+                                     if re.search(r"\d{8}_\d{6}_\d{6}$", p.stem) else p.name))
     if not sessions:
         parser.error(f"No CIR sessions found in {base}")
     folder = sessions[-1]
